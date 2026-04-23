@@ -15,6 +15,7 @@ package com.google.devtools.build.skyframe;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.devtools.build.lib.profiler.Profiler;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Sets;
@@ -238,6 +239,8 @@ class NodeEntryVisitor {
       return;
     }
     progressReceiver.enqueueing(key);
+    
+    Profiler.instance().logFlow(Profiler.instance().nanoTimeMaybe(), true,Thread.currentThread().threadId(),key.getCanonicalName());
 
     var runnable = runnableMakerToUse.make(key);
     if (quiescingExecutor

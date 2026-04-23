@@ -109,6 +109,7 @@ public interface TraceProfilerService extends BlazeService {
    */
   SilentCloseable profile(String description);
 
+  void logFlow(long startTimeNanos, boolean isStart, long initiatorThread,String skyKeyId);
   /**
    * Used externally to submit simple task (one that does not have any subtasks). Depending on the
    * minDuration attribute of the task type, task may be just aggregated into the parent task and

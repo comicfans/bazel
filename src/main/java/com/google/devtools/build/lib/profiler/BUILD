@@ -94,6 +94,7 @@ java_library(
         "ResourceCollector.java",
         "SingleStatRecorder.java",
         "TaskData.java",
+        "FlowData.java",
         "ThreadMetadata.java",
         "TimeSeriesImpl.java",
         "TraceData.java",

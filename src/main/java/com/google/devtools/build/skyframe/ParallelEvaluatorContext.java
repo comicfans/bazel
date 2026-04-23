@@ -52,6 +52,7 @@ class ParallelEvaluatorContext {
   private final GraphInconsistencyReceiver graphInconsistencyReceiver;
   private final QuiescingExecutor executor;
   private final Cache<SkyKey, SkyKeyComputeState> stateCache;
+  private final long initiatorThreadId;
 
   /**
    * The visitor managing the thread pool. Used to enqueue parents when an entry is finished, and,
@@ -80,7 +81,9 @@ class ParallelEvaluatorContext {
       QuiescingExecutor executor,
       Supplier<NodeEntryVisitor> visitorSupplier,
       Cache<SkyKey, SkyKeyComputeState> stateCache,
-      Predicate<SkyKey> keepGoing) {
+      Predicate<SkyKey> keepGoing,
+      long initiatorThreadId
+      ) {
     this.graph = graph;
     this.graphVersion = graphVersion;
     this.minimalVersion = minimalVersion;
@@ -98,6 +101,7 @@ class ParallelEvaluatorContext {
     this.visitorSupplier = Suppliers.memoize(visitorSupplier);
     this.stateCache = stateCache;
     this.keepGoing = keepGoing;
+    this.initiatorThreadId= initiatorThreadId;
   }
 
   /**
@@ -128,6 +132,10 @@ class ParallelEvaluatorContext {
         getVisitor().enqueueEvaluation(parent, skyKey);
       }
     }
+  }
+
+  long getInitiatorThreadId() {
+      return initiatorThreadId;
   }
 
   QueryableGraph getGraph() {

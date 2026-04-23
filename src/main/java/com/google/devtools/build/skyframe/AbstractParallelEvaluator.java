@@ -120,7 +120,8 @@ abstract class AbstractParallelEvaluator {
       GraphInconsistencyReceiver graphInconsistencyReceiver,
       QuiescingExecutor executor,
       CycleDetector cycleDetector,
-      Predicate<SkyKey> keepGoing) {
+      Predicate<SkyKey> keepGoing,
+      long initiatorThreadId) {
     this.graph = graph;
     this.cycleDetector = cycleDetector;
     this.evaluatorContext =
@@ -138,7 +139,8 @@ abstract class AbstractParallelEvaluator {
             executor,
             () -> new NodeEntryVisitor(executor, progressReceiver, Evaluate::new, stateCache),
             stateCache,
-            keepGoing);
+            keepGoing,
+            initiatorThreadId);
   }
 
   /**
@@ -414,6 +416,10 @@ abstract class AbstractParallelEvaluator {
     @Override
     public void run() {
       SkyFunctionEnvironment env = null;
+
+      Profiler.instance().logFlow(Profiler.instance().nanoTimeMaybe(),
+                  false, evaluatorContext.getInitiatorThreadId(), skyKey.getCanonicalName());
+
       try {
         NodeEntry nodeEntry = graph.get(null, Reason.EVALUATION, skyKey);
         if (nodeEntry == null || !nodeEntry.isReadyToEvaluate()) {
@@ -465,7 +471,8 @@ abstract class AbstractParallelEvaluator {
         SkyValue value = null;
         try (var s =
             Profiler.instance()
-                .profile(ProfilerTask.SKYFUNCTION, skyKey.functionName().getName())) {
+                .profile(ProfilerTask.SKYFUNCTION, skyKey.functionName().getName())
+                ) {
           try {
             evaluatorContext.getProgressReceiver().stateStarting(skyKey, NodeState.COMPUTE);
             value = skyFunction.compute(skyKey, env);

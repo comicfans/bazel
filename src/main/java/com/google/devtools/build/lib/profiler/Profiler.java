@@ -140,6 +140,14 @@ public final class Profiler implements TraceProfilerService {
     return NOP_CLOSEABLE;
   }
 
+
+  @Override
+  public void logFlow(long startTimeNanos, boolean isStart, long initiatorThreadId,String skyKeyId){
+    if (traceProfilerService != null) {
+      traceProfilerService.logFlow(startTimeNanos, isStart, initiatorThreadId,skyKeyId);
+    }
+  }
+
   @Override
   public void logSimpleTask(long startTimeNanos, ProfilerTask type, String description) {
     if (traceProfilerService != null) {

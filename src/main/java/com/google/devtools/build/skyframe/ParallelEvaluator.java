@@ -73,7 +73,8 @@ public class ParallelEvaluator extends AbstractParallelEvaluator {
       QuiescingExecutor executor,
       CycleDetector cycleDetector,
       UnnecessaryTemporaryStateDropperReceiver unnecessaryTemporaryStateDropperReceiver,
-      Predicate<SkyKey> keepGoing) {
+      Predicate<SkyKey> keepGoing,
+      long initiatorThreadId) {
     super(
         graph,
         graphVersion,
@@ -87,7 +88,8 @@ public class ParallelEvaluator extends AbstractParallelEvaluator {
         graphInconsistencyReceiver,
         executor,
         cycleDetector,
-        keepGoing);
+        keepGoing,
+        initiatorThreadId);
     this.unnecessaryTemporaryStateDropperReceiver = unnecessaryTemporaryStateDropperReceiver;
   }
 

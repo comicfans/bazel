@@ -30,6 +30,7 @@ import com.google.devtools.build.lib.collect.Extrema;
 import com.google.devtools.build.lib.concurrent.ThreadSafety.ThreadSafe;
 import com.google.devtools.build.lib.profiler.PredicateBasedStatRecorder.RecorderAndPredicate;
 import com.google.devtools.build.lib.profiler.TaskData.ActionTaskData;
+import com.google.devtools.build.lib.profiler.FlowData;
 import com.google.devtools.build.lib.runtime.BlazeService;
 import com.google.devtools.common.options.OptionsProvider;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -497,6 +498,18 @@ public final class TraceProfilerServiceImpl implements TraceProfilerService {
       }
     } finally {
       releaseLane(lane);
+    }
+  }
+
+
+  @Override
+  public void logFlow(long startTimeNanos, boolean isStart,
+          long initiatorThreadId, String skyKeyId){
+    JsonTraceFileWriter writer = writerRef.get();
+    if (writer != null) {
+      writer.enqueue(new TaskData(Thread.currentThread().threadId(),startTimeNanos,0,ProfilerTask.WAIT, "checkpoint"));
+      String combinedId = initiatorThreadId + skyKeyId;
+      writer.enqueue(new FlowData(startTimeNanos, isStart, Thread.currentThread().threadId(), combinedId));
     }
   }
 
