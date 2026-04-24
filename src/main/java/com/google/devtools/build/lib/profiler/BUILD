@@ -66,6 +66,7 @@ java_library(
         "CounterSeriesTask.java",
         "ProfilePhase.java",
         "Profiler.java",
+        "Initiator.java",
         "ProfilerTask.java",
         "SilentCloseable.java",
         "SlowTask.java",

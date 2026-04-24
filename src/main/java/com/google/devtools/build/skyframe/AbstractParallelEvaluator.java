@@ -37,6 +37,7 @@ import com.google.devtools.build.lib.events.Event;
 import com.google.devtools.build.lib.events.ExtendedEventHandler;
 import com.google.devtools.build.lib.events.Reportable;
 import com.google.devtools.build.lib.profiler.Profiler;
+import com.google.devtools.build.lib.profiler.Initiator;
 import com.google.devtools.build.lib.profiler.ProfilerTask;
 import com.google.devtools.build.lib.supplier.InterruptibleSupplier;
 import com.google.devtools.build.skyframe.EvaluationProgressReceiver.EvaluationState;
@@ -120,8 +121,7 @@ abstract class AbstractParallelEvaluator {
       GraphInconsistencyReceiver graphInconsistencyReceiver,
       QuiescingExecutor executor,
       CycleDetector cycleDetector,
-      Predicate<SkyKey> keepGoing,
-      long initiatorThreadId) {
+      Predicate<SkyKey> keepGoing) {
     this.graph = graph;
     this.cycleDetector = cycleDetector;
     this.evaluatorContext =
@@ -139,8 +139,7 @@ abstract class AbstractParallelEvaluator {
             executor,
             () -> new NodeEntryVisitor(executor, progressReceiver, Evaluate::new, stateCache),
             stateCache,
-            keepGoing,
-            initiatorThreadId);
+            keepGoing);
   }
 
   /**
@@ -160,9 +159,11 @@ abstract class AbstractParallelEvaluator {
   /** * An action that evaluates a value. */
   private final class Evaluate implements Runnable {
     private final SkyKey skyKey;
-
+    private final Initiator initiator;
     private Evaluate(SkyKey skyKey) {
       this.skyKey = skyKey;
+      long now = Profiler.instance().nanoTimeMaybe();
+      this.initiator = new Initiator(Thread.currentThread().threadId(),now);
     }
 
     /**
@@ -415,10 +416,21 @@ abstract class AbstractParallelEvaluator {
 
     @Override
     public void run() {
+        try (var s =
+            Profiler.instance()
+                .profile(ProfilerTask.WAIT, "run")
+                ){
+            realRun();
+        }
+    }
+
+    private void realRun(){
       SkyFunctionEnvironment env = null;
 
-      Profiler.instance().logFlow(Profiler.instance().nanoTimeMaybe(),
-                  false, evaluatorContext.getInitiatorThreadId(), skyKey.getCanonicalName());
+      Profiler.instance().logFlow(initiator.getThreadId(),initiator.getStartTimeNanos(),
+                  true, initiator, skyKey.getCanonicalName());
+      Profiler.instance().logFlow(Thread.currentThread().threadId(),Profiler.instance().nanoTimeMaybe(),
+                  false, initiator, skyKey.getCanonicalName());
 
       try {
         NodeEntry nodeEntry = graph.get(null, Reason.EVALUATION, skyKey);

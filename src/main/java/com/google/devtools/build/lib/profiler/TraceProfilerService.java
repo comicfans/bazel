@@ -27,6 +27,10 @@ import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+
+
+
+
 /**
  * Interface for the Blaze internal profiler. Provides facility to report various Blaze tasks and
  * store them (asynchronously) in the file for future analysis.
@@ -109,7 +113,7 @@ public interface TraceProfilerService extends BlazeService {
    */
   SilentCloseable profile(String description);
 
-  void logFlow(long startTimeNanos, boolean isStart, long initiatorThread,String skyKeyId);
+  void logFlow(long threadId, long startTimeNanos, boolean isStart, Initiator initiator,String skyKeyId);
   /**
    * Used externally to submit simple task (one that does not have any subtasks). Depending on the
    * minDuration attribute of the task type, task may be just aggregated into the parent task and

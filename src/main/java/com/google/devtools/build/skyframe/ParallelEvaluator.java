@@ -28,6 +28,7 @@ import com.google.devtools.build.lib.profiler.AutoProfiler;
 import com.google.devtools.build.lib.profiler.GoogleAutoProfilerUtils;
 import com.google.devtools.build.lib.profiler.Profiler;
 import com.google.devtools.build.lib.profiler.ProfilerTask;
+import com.google.devtools.build.lib.profiler.Initiator;
 import com.google.devtools.build.lib.profiler.SilentCloseable;
 import com.google.devtools.build.skyframe.Differencer.DiffWithDelta.Delta;
 import com.google.devtools.build.skyframe.EvaluationContext.UnnecessaryTemporaryStateDropperReceiver;
@@ -73,8 +74,7 @@ public class ParallelEvaluator extends AbstractParallelEvaluator {
       QuiescingExecutor executor,
       CycleDetector cycleDetector,
       UnnecessaryTemporaryStateDropperReceiver unnecessaryTemporaryStateDropperReceiver,
-      Predicate<SkyKey> keepGoing,
-      long initiatorThreadId) {
+      Predicate<SkyKey> keepGoing) {
     super(
         graph,
         graphVersion,
@@ -88,8 +88,7 @@ public class ParallelEvaluator extends AbstractParallelEvaluator {
         graphInconsistencyReceiver,
         executor,
         cycleDetector,
-        keepGoing,
-        initiatorThreadId);
+        keepGoing);
     this.unnecessaryTemporaryStateDropperReceiver = unnecessaryTemporaryStateDropperReceiver;
   }
 

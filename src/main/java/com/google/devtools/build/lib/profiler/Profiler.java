@@ -142,9 +142,9 @@ public final class Profiler implements TraceProfilerService {
 
 
   @Override
-  public void logFlow(long startTimeNanos, boolean isStart, long initiatorThreadId,String skyKeyId){
+  public void logFlow(long threadId, long startTimeNanos, boolean isStart, Initiator initiator , String skyKeyId){
     if (traceProfilerService != null) {
-      traceProfilerService.logFlow(startTimeNanos, isStart, initiatorThreadId,skyKeyId);
+      traceProfilerService.logFlow(threadId, startTimeNanos, isStart, initiator,skyKeyId);
     }
   }
 

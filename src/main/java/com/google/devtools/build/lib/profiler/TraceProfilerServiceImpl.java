@@ -503,13 +503,13 @@ public final class TraceProfilerServiceImpl implements TraceProfilerService {
 
 
   @Override
-  public void logFlow(long startTimeNanos, boolean isStart,
-          long initiatorThreadId, String skyKeyId){
+  public void logFlow(long threadId,long startTimeNanos, boolean isStart,
+          Initiator initiator, String skyKeyId){
     JsonTraceFileWriter writer = writerRef.get();
     if (writer != null) {
-      writer.enqueue(new TaskData(Thread.currentThread().threadId(),startTimeNanos,0,ProfilerTask.WAIT, "checkpoint"));
-      String combinedId = initiatorThreadId + skyKeyId;
-      writer.enqueue(new FlowData(startTimeNanos, isStart, Thread.currentThread().threadId(), combinedId));
+      writer.enqueue(new TaskData(threadId,startTimeNanos-1,2,ProfilerTask.WAIT, "checkpoint"));
+      String combinedId = initiator.toString() + "_" + skyKeyId;
+      writer.enqueue(new FlowData(startTimeNanos, isStart, threadId, combinedId));
     }
   }
 

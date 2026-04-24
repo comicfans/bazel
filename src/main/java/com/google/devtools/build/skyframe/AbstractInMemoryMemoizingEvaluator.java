@@ -30,6 +30,7 @@ import com.google.devtools.build.lib.events.ExtendedEventHandler;
 import com.google.devtools.build.lib.profiler.AutoProfiler;
 import com.google.devtools.build.lib.profiler.GoogleAutoProfilerUtils;
 import com.google.devtools.build.lib.profiler.Profiler;
+import com.google.devtools.build.lib.profiler.Initiator;
 import com.google.devtools.build.lib.profiler.SilentCloseable;
 import com.google.devtools.build.skyframe.Differencer.Diff;
 import com.google.devtools.build.skyframe.Differencer.DiffWithDelta.Delta;
@@ -180,8 +181,7 @@ public abstract class AbstractInMemoryMemoizingEvaluator implements MemoizingEva
                     ? new SimpleCycleDetector(evaluationContext.storeExactCycles())
                     : new ShortCircuitingCycleDetector(evaluationContext.getParallelism()),
                 evaluationContext.getUnnecessaryTemporaryStateDropperReceiver(),
-                getKeepGoingPredicate(evaluationContext),
-                Thread.currentThread().threadId());
+                getKeepGoingPredicate(evaluationContext));
         result = evaluator.eval(roots);
       }
       return EvaluationResult.<T>builder()
